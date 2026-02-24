@@ -14,7 +14,7 @@ The pipeline produces five datasets, all under `output/` (and in the datalake as
 - **Sales by product**: ProductID, ProductName, revenue, quantity
 - **Sales per order**: OrderID, order date, total revenue, total quantity
 
-Revenue is quantity × unit price. Unit prices come from `products.csv` if you put it in `data/`; if that file is missing, revenue is zero but quantity-based metrics still work.
+Revenue is quantity × unit price. Unit prices come from `products.csv` if you put it in `data/`, if that file is missing, revenue is zero but quantity-based metrics still work.
 
 ## How to run it 
 
@@ -38,11 +38,11 @@ docker-compose -f docker-compose.airflow.yml build
 docker-compose -f docker-compose.airflow.yml up -d
 ```
 
-**Wait until the UI is ready** (about 1–2 minutes on first start). Check with `docker compose -f docker-compose.airflow.yml ps` — when the airflow service shows `(healthy)`, open http://localhost:8080 or http://127.0.0.1:8080/. Log in with **admin** / **admin**, find the DAG **northwind_sales_pipeline**, switch it on and trigger it. The pipeline runs inside the container; logs, datalake, and output live in Docker volumes. You can click on the task and check the logs in the Airflow UI.
+**Wait until the UI is ready** (about 1–2 minutes on first start). Check with `docker compose -f docker-compose.airflow.yml ps` — when the airflow service shows `(healthy)`, open http://localhost:8080 or http://127.0.0.1:8080/. Log in with **admin** / **admin**, find the DAG **northwind_sales_pipeline**, switch it on and trigger it. The pipeline runs inside the container. Logs, datalake, and output live in Docker volumes. You can click on the task and check the logs in the Airflow UI.
 
 ## Input data
 
-You need `data/orders.csv`. Each row is an order; the `products` column is a JSON array of `{"ProductID": ..., "Quantity": ...}`. The repo includes a sample. Optionally add `data/products.csv` with columns ProductID, Price (and ProductName if you like) so the pipeline can compute revenue.
+You need `data/orders.csv`. Each row is an order. The `products` column is a JSON array of `{"ProductID": ..., "Quantity": ...}`. The repo includes a sample. Optionally add `data/products.csv` with columns ProductID, Price (and ProductName if you like) so the pipeline can compute revenue.
 
 ## Project structure
 
@@ -57,4 +57,4 @@ Two Docker setups: `Dockerfile` + `docker-compose.yml` for the one-shot run, and
 
 ## Design choices
 
-Medallion keeps raw data in Bronze, cleaned/joined in Silver, and aggregates in Gold, so you can reprocess or debug layer by layer. Parquet is used everywhere for compression and columnar reads; DuckDB does the heavy work in Silver and Gold without a separate server. Airflow gives you a daily schedule and a UI; for a single run the plain Docker compose is enough. With Airflow we use named volumes for the dirs the pipeline writes to (logs, datalake, output), so the container user has write access
+Medallion keeps raw data in Bronze, cleaned/joined in Silver, and aggregates in Gold, so you can reprocess or debug layer by layer. Parquet is used everywhere for compression and columnar reads, DuckDB does the heavy work in Silver and Gold without a separate server. Airflow gives you a daily schedule and a UI, for a single run the plain Docker compose is enough. With Airflow we use named volumes for the dirs the pipeline writes to (logs, datalake, output), so the container user has write access
