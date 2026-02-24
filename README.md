@@ -38,7 +38,7 @@ docker-compose -f docker-compose.airflow.yml build
 docker-compose -f docker-compose.airflow.yml up -d
 ```
 
-Then open http://localhost:8080 or http://127.0.0.1:8080/, log in with **admin** / **admin**, find the DAG **northwind_sales_pipeline**, switch it on and trigger it. The pipeline runs inside the container; logs, datalake, and output live in Docker volumes. You can click on the task and check the logs in the Airflow-UI
+**Wait until the UI is ready** (about 1–2 minutes on first start). Check with `docker compose -f docker-compose.airflow.yml ps` — when the airflow service shows `(healthy)`, open http://localhost:8080 or http://127.0.0.1:8080/. Log in with **admin** / **admin**, find the DAG **northwind_sales_pipeline**, switch it on and trigger it. The pipeline runs inside the container; logs, datalake, and output live in Docker volumes. You can click on the task and check the logs in the Airflow UI.
 
 ## Input data
 
@@ -57,4 +57,4 @@ Two Docker setups: `Dockerfile` + `docker-compose.yml` for the one-shot run, and
 
 ## Design choices
 
-Medallion keeps raw data in Bronze, cleaned/joined in Silver, and aggregates in Gold, so you can reprocess or debug layer by layer. Parquet is used everywhere for compression and columnar reads; DuckDB does the heavy work in Silver and Gold without a separate server. Airflow gives you a daily schedule and a UI; for a single run the plain Docker compose is enough. With Airflow we use named volumes for the dirs the pipeline writes to (logs, datalake, output), so the container user has write access; you copy results out with `docker cp` when you need them.
+Medallion keeps raw data in Bronze, cleaned/joined in Silver, and aggregates in Gold, so you can reprocess or debug layer by layer. Parquet is used everywhere for compression and columnar reads; DuckDB does the heavy work in Silver and Gold without a separate server. Airflow gives you a daily schedule and a UI; for a single run the plain Docker compose is enough. With Airflow we use named volumes for the dirs the pipeline writes to (logs, datalake, output), so the container user has write access
