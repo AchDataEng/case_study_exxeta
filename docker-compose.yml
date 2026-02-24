@@ -1,0 +1,14 @@
+# Run the pipeline offline
+
+version: "3.9"
+services:
+  pipeline:
+    build: .
+    image: northwind-datalab-pipeline:latest
+    network_mode: "none"
+    volumes:
+      - ./data:/app/data:ro
+      - ./datalake:/app/datalake
+      - ./output:/app/output
+      - ./logs:/app/logs
+    command: ["python", "-m", "src.main", "run"]

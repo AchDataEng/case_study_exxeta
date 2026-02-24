@@ -1,0 +1,17 @@
+# Airflow + Northwind pipeline deps. Entrypoint ensures pipeline dirs are writable by airflow.
+FROM apache/airflow:2.7.3-python3.11
+
+USER root
+COPY requirements.txt /tmp/requirements.txt
+RUN chown airflow:root /tmp/requirements.txt
+
+# Entrypoint: create datalake/logs/output dirs and chown to airflow, then run image entrypoint
+COPY scripts/entrypoint.sh /opt/airflow/scripts/entrypoint.sh
+RUN chmod +x /opt/airflow/scripts/entrypoint.sh && chown -R airflow:root /opt/airflow/scripts
+
+USER airflow
+RUN pip install --no-cache-dir -r /tmp/requirements.txt \
+    && python -c "import pandas, duckdb, pyarrow; print('Pipeline deps OK')"
+
+USER root
+ENTRYPOINT ["/usr/bin/dumb-init", "--", "/opt/airflow/scripts/entrypoint.sh"]

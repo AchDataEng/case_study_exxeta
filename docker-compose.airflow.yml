@@ -1,0 +1,39 @@
+# Airflow: clean setup with admin/admin and Northwind DAG.
+
+version: "3.9"
+
+x-env: &common_env
+  AIRFLOW__CORE__EXECUTOR: SequentialExecutor
+  AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: sqlite:////opt/airflow/airflow.db
+  AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+  AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: "true"
+  AIRFLOW__CORE__DEFAULT_UI_TIMEZONE: UTC
+  _AIRFLOW_DB_MIGRATE: "true"
+  _AIRFLOW_WWW_USER_CREATE: "true"
+  _AIRFLOW_WWW_USER_USERNAME: "admin"
+  _AIRFLOW_WWW_USER_PASSWORD: "admin"
+
+services:
+  airflow:
+    build:
+      context: .
+      dockerfile: Dockerfile.airflow
+    image: northwind-airflow:latest
+    environment:
+      <<: *common_env
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ./src:/opt/airflow/src
+      - ./data:/opt/airflow/data
+      # Named volumes: container owns these so pipeline can write (logs, datalake, output)
+      - airflow_logs:/opt/airflow/logs
+      - airflow_datalake:/opt/airflow/datalake
+      - airflow_output:/opt/airflow/output
+    ports:
+      - "8080:8080"
+    command: airflow standalone
+
+volumes:
+  airflow_logs:
+  airflow_datalake:
+  airflow_output:
