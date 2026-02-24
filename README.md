@@ -38,7 +38,7 @@ docker-compose -f docker-compose.airflow.yml build
 docker-compose -f docker-compose.airflow.yml up -d
 ```
 
-**Wait until the UI is ready** (about 1–2 minutes on first start). Check with `docker compose -f docker-compose.airflow.yml ps` — when the airflow service shows `(healthy)`, open http://localhost:8080 or http://127.0.0.1:8080/. Log in with **admin** / **admin**, find the DAG **northwind_sales_pipeline**, switch it on and trigger it. The pipeline runs inside the container. Logs, datalake, and output live in Docker volumes. You can click on the task and check the logs in the Airflow UI.
+**Wait until the UI is ready** (about 1–2 minutes on first start), open http://localhost:8080 or http://127.0.0.1:8080/. Log in with **admin** / **admin**, find the DAG **northwind_sales_pipeline**, switch it on and trigger it. The pipeline runs inside the container. Logs, datalake, and output live in Docker volumes. You can click on the task and check the logs in the Airflow UI.
 
 ## Input data
 
